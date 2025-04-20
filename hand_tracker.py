@@ -1,12 +1,14 @@
 import cv2
 import mediapipe as mp
 
+
 class HandTracker:
     """
     HandTracker uses MediaPipe to detect hand landmarks and provides
     methods to get the index-finger tip coordinates per hand, keyed
     by handedness.
     """
+
     def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
         self.maxHands = maxHands
@@ -18,7 +20,7 @@ class HandTracker:
             static_image_mode=self.mode,
             max_num_hands=self.maxHands,
             min_detection_confidence=self.detectionCon,
-            min_tracking_confidence=self.trackCon
+            min_tracking_confidence=self.trackCon,
         )
         self.mpDraw = mp.solutions.drawing_utils
 
@@ -32,9 +34,7 @@ class HandTracker:
         if self.results.multi_hand_landmarks and draw:
             for handLms in self.results.multi_hand_landmarks:
                 self.mpDraw.draw_landmarks(
-                    frame,
-                    handLms,
-                    self.mpHands.HAND_CONNECTIONS
+                    frame, handLms, self.mpHands.HAND_CONNECTIONS
                 )
         return frame
 
@@ -45,8 +45,9 @@ class HandTracker:
         """
         h, w = frame.shape[:2]
         if self.results.multi_hand_landmarks:
-            lm = self.results.multi_hand_landmarks[0]\
-                      .landmark[self.mpHands.HandLandmark.INDEX_FINGER_TIP]
+            lm = self.results.multi_hand_landmarks[0].landmark[
+                self.mpHands.HandLandmark.INDEX_FINGER_TIP
+            ]
             return int(lm.x * w), int(lm.y * h)
         return None, None
 
@@ -57,16 +58,17 @@ class HandTracker:
         """
         tips = {}
         h, w = frame.shape[:2]
-        if not (self.results.multi_hand_landmarks and
-                self.results.multi_handedness):
+        if not (self.results.multi_hand_landmarks and self.results.multi_handedness):
             return tips
 
-        for handLms, handedness in zip(self.results.multi_hand_landmarks,
-                                        self.results.multi_handedness):
+        for handLms, handedness in zip(
+            self.results.multi_hand_landmarks, self.results.multi_handedness
+        ):
             label = handedness.classification[0].label  # "Left" or "Right"
             lm = handLms.landmark[self.mpHands.HandLandmark.INDEX_FINGER_TIP]
             tips[label] = (int(lm.x * w), int(lm.y * h))
         return tips
+
 
 if __name__ == "__main__":
     print("This module is not meant to be run directly.")

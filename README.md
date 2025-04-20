@@ -27,4 +27,4 @@ python demo.py
 ```
 - A window will open showing your webcam feed with a red dot.
 - Move your index finger to touch the dot—when the dot is caught, your score increases and a new dot appears.
-- Press **q** to quit the game.
+- Press **q** or **Esc** to exit the game.
