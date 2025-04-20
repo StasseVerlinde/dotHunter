@@ -13,9 +13,12 @@ class DotGame:
         self.spawn_dot()
 
     def spawn_dot(self):
-        self.dot_x = random.randint(self.dot_radius, self.frame_width - self.dot_radius)
+        padding = 50
+        self.dot_x = random.randint(
+            self.dot_radius + padding, self.frame_width - self.dot_radius - padding
+        )
         self.dot_y = random.randint(
-            self.dot_radius, self.frame_height - self.dot_radius
+            self.dot_radius + padding, self.frame_height - self.dot_radius - padding
         )
 
     def draw_dot(self, frame):
