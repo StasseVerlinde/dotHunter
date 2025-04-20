@@ -3,7 +3,9 @@ import mediapipe as mp
 
 class HandTracker:
     """
-    HandTracker uses MediaPipe to detect hand landmarks and provides the index finger tip coordinates.
+    HandTracker uses MediaPipe to detect hand landmarks and provides
+    methods to get the index-finger tip coordinates per hand, keyed
+    by handedness.
     """
     def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
         self.mode = mode
@@ -11,7 +13,6 @@ class HandTracker:
         self.detectionCon = detectionCon
         self.trackCon = trackCon
 
-        # Initialize MediaPipe Hands.
         self.mpHands = mp.solutions.hands
         self.hands = self.mpHands.Hands(
             static_image_mode=self.mode,
@@ -19,13 +20,11 @@ class HandTracker:
             min_detection_confidence=self.detectionCon,
             min_tracking_confidence=self.trackCon
         )
-        # For drawing hand landmarks (optional)
         self.mpDraw = mp.solutions.drawing_utils
 
     def find_hands(self, frame, draw=True):
         """
-        Processes the frame to detect hands and optionally draws landmarks.
-        Returns the frame with landmarks drawn (if draw=True).
+        Process the frame for hand landmarks. Optionally draw them.
         """
         imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
@@ -41,15 +40,34 @@ class HandTracker:
 
     def get_index_finger_tip(self, frame):
         """
-        Returns (x, y) pixel coordinates of the index finger tip if detected;
-        otherwise returns (None, None).
+        Solo mode helper: returns the first detected index-finger tip (x, y),
+        or (None, None) if no hand.
         """
-        frame_height, frame_width = frame.shape[:2]
+        h, w = frame.shape[:2]
         if self.results.multi_hand_landmarks:
-            hand_landmarks = self.results.multi_hand_landmarks[0]
-            index_tip = hand_landmarks.landmark[self.mpHands.HandLandmark.INDEX_FINGER_TIP]
-            x = int(index_tip.x * frame_width)
-            y = int(index_tip.y * frame_height)
-            return x, y
+            lm = self.results.multi_hand_landmarks[0]\
+                      .landmark[self.mpHands.HandLandmark.INDEX_FINGER_TIP]
+            return int(lm.x * w), int(lm.y * h)
         return None, None
 
+    def get_index_finger_tips_by_handedness(self, frame):
+        """
+        Returns a dict mapping "Left" and/or "Right" to the index-finger tip (x, y).
+        Hands not seen simply aren’t in the dict.
+        """
+        tips = {}
+        h, w = frame.shape[:2]
+        if not (self.results.multi_hand_landmarks and
+                self.results.multi_handedness):
+            return tips
+
+        for handLms, handedness in zip(self.results.multi_hand_landmarks,
+                                        self.results.multi_handedness):
+            label = handedness.classification[0].label  # "Left" or "Right"
+            lm = handLms.landmark[self.mpHands.HandLandmark.INDEX_FINGER_TIP]
+            tips[label] = (int(lm.x * w), int(lm.y * h))
+        return tips
+
+if __name__ == "__main__":
+    print("This module is not meant to be run directly.")
+    print("Please run demo.py to start the game.")
