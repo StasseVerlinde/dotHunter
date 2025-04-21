@@ -51,6 +51,7 @@ def main():
     if fx is None or fy is None:
         print("No hand (or index finger) detected in the image.")
         return
+    
     if not args.force_detection:
         # 3) Spawn a random dot using your DotGame logic
         game = DotGame(frame_width=width, frame_height=height, dot_radius=20, players=1)

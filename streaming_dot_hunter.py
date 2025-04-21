@@ -144,11 +144,15 @@ def main():
                 colors[1],
                 2,
             )
-
+            
         cv2.imshow("Dot Hunter", frame)
 
         key = cv2.waitKey(1) & 0xFF
         if key == ord("q") or key == 27:  # ESC or 'q' to quit
+            break
+
+        # Stop the game if the window is closed
+        if cv2.getWindowProperty("Dot Hunter", cv2.WND_PROP_VISIBLE) < 1:
             break
 
     cap.release()
