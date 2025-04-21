@@ -4,12 +4,23 @@ import mediapipe as mp
 
 class HandTracker:
     """
-    HandTracker uses MediaPipe to detect hand landmarks and provides
-    methods to get the index-finger tip coordinates per hand, keyed
-    by handedness.
+    HandTracker wraps MediaPipe Hands to detect hand landmarks and extract
+    index-finger tip positions.
+
+    Attributes:
+        mode (bool): If True, runs in static_image_mode (no temporal smoothing).
+        maxHands (int): Maximum number of hands to detect.
+        detectionCon (float): Minimum confidence for initial detection.
+        trackCon (float): Minimum confidence for tracking landmarks.
+        hands: The MediaPipe Hands object.
+        mpDraw: Utility for drawing landmarks & connections.
+        results: Storage for the latest detection results.
     """
 
     def __init__(self, mode=False, maxHands=1, detectionCon=0.7, trackCon=0.7):
+        """
+        Configure the MediaPipe Hands solution.
+        """
         self.mode = mode
         self.maxHands = maxHands
         self.detectionCon = detectionCon
@@ -26,7 +37,14 @@ class HandTracker:
 
     def find_hands(self, frame, draw=True):
         """
-        Process the frame for hand landmarks. Optionally draw them.
+        Process an image to detect hand landmarks.
+
+        Args:
+            frame (np.ndarray): BGR image from OpenCV.
+            draw (bool): Whether to overlay the landmark skeletons on the image.
+
+        Returns:
+            np.ndarray: The annotated frame (if draw=True) or original frame.
         """
         imgRGB = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
         self.results = self.hands.process(imgRGB)
@@ -40,8 +58,13 @@ class HandTracker:
 
     def get_index_finger_tip(self, frame):
         """
-        Solo mode helper: returns the first detected index-finger tip (x, y),
-        or (None, None) if no hand.
+        Get the (x, y) pixel coordinates of the first detected index-finger tip.
+
+        Args:
+            frame (np.ndarray): Used to obtain image dimensions.
+
+        Returns:
+            (int, int) or (None, None): Coordinates of the tip, or None if no hand.
         """
         h, w = frame.shape[:2]
         if self.results.multi_hand_landmarks:
@@ -53,8 +76,13 @@ class HandTracker:
 
     def get_index_finger_tips_by_handedness(self, frame):
         """
-        Returns a dict mapping "Left" and/or "Right" to the index-finger tip (x, y).
-        Hands not seen simply aren’t in the dict.
+        Get a mapping of handedness ("Left"/"Right") to index-finger tip coords.
+
+        Args:
+            frame (np.ndarray): Used to obtain image dimensions.
+
+        Returns:
+            dict: {"Left": (x, y), "Right": (x, y)}, keys only for detected hands.
         """
         tips = {}
         h, w = frame.shape[:2]
@@ -72,4 +100,4 @@ class HandTracker:
 
 if __name__ == "__main__":
     print("This module is not meant to be run directly.")
-    print("Please run demo.py to start the game.")
+    exit(1)

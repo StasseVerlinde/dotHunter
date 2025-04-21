@@ -1,8 +1,15 @@
+"""
+streaming_dot_hunter.py
+
+Real‑time “catch the dot” game using your webcam and MediaPipe.
+Run with: python streaming_dot_hunter.py
+"""
+
 import cv2
 import tkinter as tk
 from tkinter import ttk
-from hand_tracker import HandTracker
-from dot_game import DotGame
+from src.hand_tracker import HandTracker
+from src.dot_game import DotGame
 
 
 def get_user_settings():
