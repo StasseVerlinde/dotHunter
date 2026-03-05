@@ -55,6 +55,7 @@ dotHunter/
 ├── src/                      # Source folder containing core modules
 │   ├── hand_tracker.py       # Hand tracking logic using MediaPipe
 │   ├── dot_game.py           # Game logic for dot placement and scoring
+├── assets/                   # Image assets (see assets/README.md for attribution)
 ├── README.md                 # Project documentation
 ├── instruction.md            # Instructions for the coding challenge
 ├── requirements.txt          # Python dependencies
