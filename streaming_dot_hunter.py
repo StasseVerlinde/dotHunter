@@ -64,7 +64,6 @@ def show_game_over_screen(final_scores, players, timer_duration):
     root.title("Game Over!")
     root.resizable(False, False)
     
-    play_again = {"value": False}
     player_names = []
     
     # Title
@@ -129,27 +128,21 @@ def show_game_over_screen(final_scores, players, timer_duration):
         
         root.destroy()
     
-    def on_play_again():
-        on_submit()  # Save scores first
-        play_again["value"] = True
-    
-    # Buttons
+    # Buttons (only Quit)
     button_frame = ttk.Frame(root)
     button_frame.grid(row=7 if players == 1 else 7, column=0, columnspan=2, pady=(15, 20))
-    
-    ttk.Button(button_frame, text="Play Again", command=on_play_again).pack(side='left', padx=5)
     ttk.Button(button_frame, text="Quit", command=on_submit).pack(side='left', padx=5)
-    
-    # Handle Enter key
+
+    # Handle Enter key (just submit and quit)
     def on_enter(event):
-        on_play_again()
-    
+        on_submit()
+
     root.bind('<Return>', on_enter)
     root.protocol("WM_DELETE_WINDOW", on_submit)
-    
+
     root.mainloop()
-    
-    return play_again["value"]
+
+    return False
 
 
 def get_user_settings():
@@ -373,28 +366,22 @@ def run_game_session(settings):
     cv2.destroyAllWindows()
     cv2.waitKey(1)
     
-    # Show game over screen and check if player wants to play again
+    # Show game over screen (no play again option)
     if game_over or elapsed_time >= timer_duration - 1:  # Only show if game completed
-        return show_game_over_screen(game.scores, players, timer_duration)
-    
+        show_game_over_screen(game.scores, players, timer_duration)
+        return False
+
     return False  # Don't play again if quit early
 
 
 def main():
     """Main entry point - handles play again loop."""
-    play_again = True
-    
-    while play_again:
-        settings = get_user_settings()
-        if settings is None or settings[0] is None:
-            print("Settings canceled. Exiting.")
-            break
-        
-        play_again = run_game_session(settings)
-        
-        # Brief delay to ensure clean transition between sessions
-        if play_again:
-            time.sleep(0.1)
+    settings = get_user_settings()
+    if settings is None or settings[0] is None:
+        print("Settings canceled. Exiting.")
+        return
+
+    run_game_session(settings)
 
 
 if __name__ == "__main__":
